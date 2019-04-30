@@ -3,7 +3,7 @@
   *   Huy Nguyen G00982719
   *      Ben Dahlhauser G01104179
   *      Kevin Vo G00837111
-  * 
+  * PROPOSED CHANGE
   *
   */
 
