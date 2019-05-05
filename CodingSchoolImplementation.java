@@ -4,7 +4,7 @@
   *      Ben Dahlhauser G01104179
   *      Kevin Vo G00837111
   * 
-  * Edit in real time
+  *
   */
 
 
@@ -61,6 +61,8 @@ public class CodingSchoolImplementation{
             }
 
       }while(username.charAt(0)!='Q');
+      writeToFile(people);
+      writeToFile(course_list);
       
    }
    
@@ -440,29 +442,6 @@ public class CodingSchoolImplementation{
       
       
       
-//       //CREATE ACCOUNT METHOD with VALIDATION OF PASSWORD AND USERNAME
-//       String username = JOptionPane.showInputDialog("Enter username: ");
-//       String fName = JOptionPane.showInputDialog("Enter first name: ");
-//       String lName = JOptionPane.showInputDialog("Enter last name: ");
-//       String phoneNumber = JOptionPane.showInputDialog("Enter phone number: ");
-//       String address = JOptionPane.showInputDialog("Enter address: ");
-//       String email = JOptionPane.showInputDialog("Enter email: ");
-//       String password = JOptionPane.showInputDialog("Enter password: ");
-//       
-//       String isMaintenance = JOptionPane.showInputDialog("Enter whether maintenance (Y/N): ");
-//       boolean realIsMaint = false;
-//       if(isMaintenance.equalsIgnoreCase("Y")){
-//          realIsMaint = true;
-//       }
-//       
-// //       Person person = null;
-//       if(username.charAt(0)=='S'){
-//          person = new Student(fName,lName,phoneNumber,address,email,username,password,realIsMaint,"Status",4.0);
-//       }else{
-//          person = new Employee(fName,lName,phoneNumber,address,email,username,password,realIsMaint,"Faculty");
-//       }
-//       people.put(username,person);
-      
    }
    
    
@@ -499,7 +478,8 @@ public class CodingSchoolImplementation{
             case 4:
                //DELETE COURSE FROM STUDENT
                //stuDeleteCourse(student);
-               //student.dropCourse(JOptionPane.showInputDialog("Enter course ID to drop"));
+               String stuDrop = student.dropCourse(JOptionPane.showInputDialog("Enter course ID to drop")); 
+               JOptionPane.showMessageDialog(null, stuDrop);
                people.put(username,student);
                break;
             case 5:
@@ -527,23 +507,71 @@ public class CodingSchoolImplementation{
             case 0:
                //CHANGE Name
                //stuChangeName();
-               student.setFirstName(JOptionPane.showInputDialog("Enter new first name for the student"));
-               student.setLastName(JOptionPane.showInputDialog("Enter new last name for the student"));
+               boolean nameSet = false;
+               do{
+                  try{
+                     student.setFirstName(JOptionPane.showInputDialog("Enter new FIRST name for the student"));
+                     nameSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     nameSet = false;
+                  }
+               }while(!nameSet);
+               nameSet = false;
+               do{
+                  try{
+                     student.setLastName(JOptionPane.showInputDialog("Enter new LAST name for the student"));
+                     nameSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     nameSet = false;
+                  }
+               }while(!nameSet);
+               
                break;
             case 1:
                //CHANGE PHONE NUMBER
                //stuChangePhoneNumber();
-               student.setPhoneNumber(JOptionPane.showInputDialog("Enter new phone number for the student"));
+               boolean phoneSet = false;
+               do{
+                  try{
+                     student.setPhoneNumber(JOptionPane.showInputDialog("Enter new phone number for the student"));
+                     phoneSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     phoneSet = false;
+                  }
+               }while(!phoneSet);
                break;
             case 2:
                //CHANGE EMAIL
                //stuChangeEmail();
-               student.setEmail(JOptionPane.showInputDialog("Enter new email for the student"));
+               boolean emailSet = false;
+               do{
+                  try{
+                     student.setEmail(JOptionPane.showInputDialog("Enter new email for the student"));
+                     emailSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     emailSet = false;
+                  }
+               }while(!emailSet);
+               
                break;
             case 3:
                //CHANGE ADDRESS
                //stuChangeAddress();
-               student.setAddress(JOptionPane.showInputDialog("Enter new address for the student"));
+               boolean addSet = false;
+               do{
+                  try{
+                     student.setAddress(JOptionPane.showInputDialog("Enter new address for the student"));
+                     addSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     addSet = false;
+                  }
+               }while(!addSet);
+               
                break;
             case 4:
                return student;
@@ -595,8 +623,36 @@ public class CodingSchoolImplementation{
    public static void instModifyStuGrade(HashMap<String,Person> people){
       boolean gradeSet = false;
       String stuName = "";
+      
+      Collection<Person> p = new TreeSet<Person>(new SortPersonName());
+      Iterator it1 = people.values().iterator();
+      while (it1.hasNext()){         
+         //get one entry from the list
+         Person one_entry = (Person)(it1.next());
+         //get the user name of the entry.
+         String username = one_entry.getUserName();  
+         if(one_entry instanceof Student){
+            Student stu = (Student)one_entry;
+            p.add(stu);
+         }  
+      }
+      
+      Iterator it2 = p.iterator();
+      /** Creates a string output to have a well formatted output for the user */
+      String output = "Students ordered by firstname: \n\n\n";
+      //Iterates through the tree set and adds each elements data to the output for the user
+      while(it2.hasNext()){
+         Person temp = (Person)it2.next();
+         String first = temp.getFirstName();
+         String last = temp.getLastName();
+         String ID = temp.getUserName();
+         output += "Name: " + first + " , " + last + "\nUsername: " + ID + "\n\n"; 
+      }
+      
+
+            
       do{
-         stuName = JOptionPane.showInputDialog("Enter the username of the student you would like to modify: ");
+         stuName = JOptionPane.showInputDialog(output + "\n\nEnter the username of the student you would like to modify: ");
          //VALIDATE STUDENT NAME
          if(people.containsKey(stuName)){
             Student tempStu = (Student)people.get(stuName);
@@ -617,6 +673,7 @@ public class CodingSchoolImplementation{
       int size = course_list.size();
       Course[] arr = new Course[size];
       course_list.copyInto(arr);
+      boolean modCourse = false;
       
       do{
          whichCourse = JOptionPane.showInputDialog("Enter course ID of course you would like to modify: ");
@@ -624,9 +681,13 @@ public class CodingSchoolImplementation{
             for(int i = 0; i < arr.length; i++){
                if(arr[i].getCourseID().equals(whichCourse)){
                   modCourse(i, course_list);
+                  modCourse = true;
                }else{
-                  JOptionPane.showMessageDialog(null, "No courses with that ID");
+                  modCourse = false;
                }
+            }
+            if(!modCourse){
+               JOptionPane.showMessageDialog(null, "No courses with that ID");
             }
          }else{
             JOptionPane.showMessageDialog(null, "No courses in list");
@@ -657,37 +718,87 @@ public class CodingSchoolImplementation{
             case 0:
                //MODIFY COURSE ID
                //modCourseID();
-               String newID = JOptionPane.showInputDialog("Enter new ID for course: ");
-               course.setCourseID(newID);
-               JOptionPane.showMessageDialog(null, "New ID has been set");
+               boolean courseSet = false;
+               do{
+                  try{
+                     String newID = JOptionPane.showInputDialog("Enter new ID for course: ");
+                     course.setCourseID(newID);
+                     JOptionPane.showMessageDialog(null, "New ID has been set");
+                     courseSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     courseSet = false;
+                  }
+               }while(!courseSet);
+               
                break;
             case 1:
                //MODIFY START DATE
                //modCourseStartDate();
-               String newStartD = JOptionPane.showInputDialog("Enter new Start Date for course: ");
-               course.setDateStart(newStartD);
-               JOptionPane.showMessageDialog(null, "New Start Date has been set");
+               boolean startDSet = false;
+               do{
+                  try{
+                     String newStartD = JOptionPane.showInputDialog("Enter new Start Date for course: ");
+                     course.setDateStart(newStartD);
+                     JOptionPane.showMessageDialog(null, "New Start Date has been set");
+                     courseSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     courseSet = false;
+                  }
+               }while(!courseSet);
+               
                break;
             case 2:
                //MODIFY END DATE
                //modCourseEndDate();
-               String newEndD = JOptionPane.showInputDialog("Enter new End Date for course: ");
-               course.setDateEnd(newEndD);
-               JOptionPane.showMessageDialog(null, "New Start Date has been set");
+               boolean endDSet = false;
+               do{
+                  try{
+                     String newEndD = JOptionPane.showInputDialog("Enter new End Date for course: ");
+                     course.setDateEnd(newEndD);
+                     JOptionPane.showMessageDialog(null, "New Start Date has been set");
+                     courseSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     courseSet = false;
+                  }
+               }while(!courseSet);
+               
                break;
             case 3:
                //MODIFY START TIME
                //modCourseStartTime();
-               String newStartT = JOptionPane.showInputDialog("Enter new Start Time for course: ");
-               course.setDateEnd(newStartT);
-               JOptionPane.showMessageDialog(null, "New Start Date has been set");
+               boolean startTSet = false;
+               do{
+                  try{
+                     String newStartT = JOptionPane.showInputDialog("Enter new Start Time for course: ");
+                     course.setDateEnd(newStartT);
+                     JOptionPane.showMessageDialog(null, "New Start Date has been set");
+                     courseSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     courseSet = false;
+                  }
+               }while(!courseSet);
+               
                break;
             case 4:
                //MODIFY END TIME
                //modCourseEndTime();
-               String newEndT = JOptionPane.showInputDialog("Enter new End Time for course: ");
-               course.setDateEnd(newEndT);
-               JOptionPane.showMessageDialog(null, "New Start Date has been set");
+               boolean endTSet = false;
+               do{
+                  try{
+                     String newEndT = JOptionPane.showInputDialog("Enter new End Time for course: ");
+                     course.setDateEnd(newEndT);
+                     JOptionPane.showMessageDialog(null, "New Start Date has been set");
+                     courseSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     courseSet = false;
+                  }
+               }while(!courseSet);
+               
                break;
             case 5:
                return;
@@ -697,17 +808,50 @@ public class CodingSchoolImplementation{
    
    
    public static void instDropStu(HashMap<String,Person> people){
-      String stuID = JOptionPane.showInputDialog("Enter username of student you want to drop: ");
-      String courseID = JOptionPane.showInputDialog("Enter course ID for course you want to drop: ");
+      
+      Collection<Person> p = new TreeSet<Person>(new SortPersonName());
+      Iterator it1 = people.values().iterator();
+      while (it1.hasNext()){      
+         //get one entry from the list
+         Person one_entry = (Person)(it1.next());
+         //get the user name of the entry.
+         String username = one_entry.getUserName();   
+         if(one_entry instanceof Student){
+            Student stu = (Student)one_entry;
+            p.add(stu);
+         }  
+      }
+      
+      Iterator it2 = p.iterator();
+      /** Creates a string output to have a well formatted output for the user */
+      String output = "Students ordered by firstname: \n\n\n";
+      //Iterates through the tree set and adds each elements data to the output for the user
+      while(it2.hasNext()){
+         Person temp = (Person)it2.next();
+         String first = temp.getFirstName();
+         String last = temp.getLastName();
+         String ID = temp.getUserName();
+         output += "Name: " + first + " , " + last + "\nUsername: " + ID + "\n\n"; 
+      }
+      
+      String stuID = JOptionPane.showInputDialog(output + "\nEnter username of student you want to drop: ");
+      String courseID = "";
       if(!people.isEmpty()){
          if(people.containsKey(stuID)){
             Student student = (Student)people.get(stuID);
-            if(student.getCourse(courseID)){
-               student.dropCourse(courseID);
-               JOptionPane.showMessageDialog(null, "Course successfully dropped");
+            String courseList = "";
+            if(student.getCourses().charAt(0) == 'S'){
+               JOptionPane.showMessageDialog(null, student.getCourses());
             }else{
-               JOptionPane.showMessageDialog(null, "Student is not registered for that course");
-            }
+               courseList = student.getCourses();
+               courseID = JOptionPane.showInputDialog(courseList + "\n\nEnter course ID for course you want to drop: ");
+               if(student.getCourse(courseID)){
+                  student.dropCourse(courseID);
+                  JOptionPane.showMessageDialog(null, "Course successfully dropped");
+               }else{
+                  JOptionPane.showMessageDialog(null, "Student is not registered for that course");
+               }
+            }     
          }else{
             JOptionPane.showMessageDialog(null, "No student matching that username");
          }
@@ -742,7 +886,29 @@ public class CodingSchoolImplementation{
             case 2:
                //MODIFY STUDENTS
                //maintModStu();
-               String student_username = JOptionPane.showInputDialog("Enter student ID: ");
+               Collection<Person> p = new TreeSet<Person>(new SortPersonName());
+               Iterator it1 = people.values().iterator();
+               while (it1.hasNext()){         
+                  //get one entry from the list
+                  Person one_entry = (Person)(it1.next());  
+                  if(one_entry instanceof Student){
+                     Student stu = (Student)one_entry;
+                     p.add(stu);
+                  }  
+               }
+                     
+               Iterator it2 = p.iterator();
+               /** Creates a string output to have a well formatted output for the user */
+               String out = "Students ordered by firstname: \n\n\n";
+               //Iterates through the tree set and adds each elements data to the output for the user
+               while(it2.hasNext()){
+                  Person temp = (Person)it2.next();
+                  String first = temp.getFirstName();
+                  String last = temp.getLastName();
+                  String ID = temp.getUserName();
+                  out += "Name: " + first + " , " + last + "\nUsername: " + ID + "\n\n"; 
+               }
+               String student_username = JOptionPane.showInputDialog(out + "\nEnter student ID: ");
                if(people.containsKey(student_username)){
                   Student tempStu = (Student)people.get(student_username);
                   tempStu = stuModifyInfo(tempStu,course_list);
@@ -763,7 +929,29 @@ public class CodingSchoolImplementation{
             case 5:
                //MODIFY EMPLOYEES
                //maintModEmp();
-               String emp_username = JOptionPane.showInputDialog("Enter employee ID: ");
+               Collection<Person> p1 = new TreeSet<Person>(new SortPersonName());
+               Iterator it3 = people.values().iterator();
+               while (it3.hasNext()){         
+                  //get one entry from the list
+                  Person one_entry = (Person)(it3.next());  
+                  if(one_entry instanceof Employee){
+                     Employee empPlace = (Employee)one_entry;
+                     p1.add(empPlace);
+                  }  
+               }
+                     
+               Iterator it4 = p1.iterator();
+               /** Creates a string output to have a well formatted output for the user */
+               String out2 = "Employees ordered by firstname: \n\n\n";
+               //Iterates through the tree set and adds each elements data to the output for the user
+               while(it4.hasNext()){
+                  Person temp = (Person)it4.next();
+                  String first = temp.getFirstName();
+                  String last = temp.getLastName();
+                  String ID = temp.getUserName();
+                  out2 += "Name: " + first + " , " + last + "\nUsername: " + ID + "\n\n"; 
+               }
+               String emp_username = JOptionPane.showInputDialog(out2 + "\nEnter employee ID: ");
                if(people.containsKey(emp_username)){
                   Employee tempEmp = (Employee)people.get(emp_username);
                   tempEmp = empModifyInfo(tempEmp,course_list);
@@ -832,23 +1020,71 @@ public class CodingSchoolImplementation{
             case 0:
                //CHANGE Name
                //stuChangeName();
-               employee.setFirstName(JOptionPane.showInputDialog("Enter new first name for the employee"));
-               employee.setLastName(JOptionPane.showInputDialog("Enter new last name for the employee"));
+               boolean nameSet = false;
+               do{
+                  try{
+                     employee.setFirstName(JOptionPane.showInputDialog("Enter new FIRST name for the employee"));
+                     nameSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     nameSet = false;
+                  }
+               }while(!nameSet);
+               nameSet = false;
+               do{
+                  try{
+                     employee.setLastName(JOptionPane.showInputDialog("Enter new LAST name for the employee"));
+                     nameSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     nameSet = false;
+                  }
+               }while(!nameSet);  
                break;
             case 1:
                //CHANGE PHONE NUMBER
                //stuChangePhoneNumber();
-               employee.setPhoneNumber(JOptionPane.showInputDialog("Enter new phone number for the employee"));
+               boolean phoneSet = false;
+               do{
+                  try{
+                     employee.setPhoneNumber(JOptionPane.showInputDialog("Enter new phone number for the employee"));
+                     phoneSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     phoneSet = false;
+                  }
+               }while(!phoneSet);
+               
                break;
             case 2:
                //CHANGE EMAIL
                //stuChangeEmail();
-               employee.setEmail(JOptionPane.showInputDialog("Enter new email for the employee"));
+               boolean emailSet = false;
+               do{
+                  try{
+                     employee.setEmail(JOptionPane.showInputDialog("Enter new email for the employee"));
+                     emailSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     emailSet = false;
+                  }
+               }while(!emailSet);
+               
                break;
             case 3:
                //CHANGE ADDRESS
                //stuChangeAddress();
-               employee.setAddress(JOptionPane.showInputDialog("Enter new address for the employee"));
+               boolean addSet = false;
+               do{
+                  try{
+                     employee.setAddress(JOptionPane.showInputDialog("Enter new address for the employee"));
+                     addSet = true;
+                  }catch(IllegalArgumentException e){
+                     JOptionPane.showMessageDialog(null, e.getMessage());
+                     addSet = false;
+                  }
+               }while(!addSet);
+               
                break;
             case 4:
                return employee;

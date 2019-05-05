@@ -97,7 +97,7 @@ public class Student extends Person{
       }while (!isset);      
    }
 
-   public void dropCourse(String course){
+   public String dropCourse(String course){
       //boolean hasCourse = false;
       int count = 0;
       int index = -1;
@@ -114,13 +114,18 @@ public class Student extends Person{
          }      
          if(index != -1){
             courses.remove(index);
+            return "Course dropped successfully";
+         }else{
+            return "No course with that ID found";
          }
+      }else{
+         return "No course to drop";
       }
       
    }
       
    public String toString(){
-      return super.toString() + "\nGrade: " + this.getGrade() + "\n" + getCourses();
+      return super.toString() + "\nGrade: " + this.getGrade() + "\nCourses: \n" + getCourses();
    }
    
 }

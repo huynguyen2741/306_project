@@ -157,7 +157,7 @@ public class Person{
          throw new IllegalArgumentException("--Can't be blank--");
       }
       if(phoneNumber.length()!=12){
-         throw new IllegalArgumentException("--Not in the right format, or not enough digits--");
+         throw new IllegalArgumentException("--Not in the right format, or not enough digits--\nFormat: ###-###-####\n");
       }
       for(int x = 0; x < phoneNumber.length(); x++){
          if(!Character.isDigit(phoneNumber.charAt(x)) && !(phoneNumber.charAt(x)==VALID_PHONE_CHAR)){
