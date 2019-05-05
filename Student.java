@@ -1,5 +1,6 @@
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import java.util.*;
+
 
 public class Student extends Person{
    private String status;
@@ -54,7 +55,7 @@ public class Student extends Person{
       return hasCourse;
    }
    
-   public String getCourses(){
+    public String getCourses(){
       if (courses.size() > 0){
          String output = "List of course\n\n";
          for (Course oneCourse : courses){
@@ -65,36 +66,66 @@ public class Student extends Person{
       return "Student does not have courses.";
    }
 
+   public Vector<String> getCourseList(){
+      Vector<String> out = new Vector<String>();
+      if (courses.size() > 0){
+         //String output = "List of course\n\n";
+         for (Course c : courses){
+            //output += oneCourse.toString()+"\n";
+            out.add("<html>ID: " + c.getCourseID() + "<br>Title: " + c.getTitle() + "<br>" + c.getDateStart() + "--" + c.getDateEnd()
+                + "<br>" + c.getTimeStart() + " - " + c.getTimeEnd() + "<br><br></html>");
+         }
+         //return out;
+      }
+      else {
+         out.add("Student does not have courses.");
+      }
+      
+      return out;
+      
+   }
+
    
    //used to add one course to the courses list.
    public void setCourse(Vector<Course> course_list) {
-      Iterator it = course_list.iterator();
-      JOptionPane.showMessageDialog(null,"A list of course will be display\n\nPlease note down the course ID of the course to be added.");
-      String list = "List of available course:\n\n ";
-
-      Object[] options = new Object[course_list.size()];
-
+      //Iterator it = course_list.iterator();
       boolean isset = false;
+      //JOptionPane.showMessageDialog(null,"A list of course will be display\n\nPlease note down the course ID of the course to be added.");
+      //String list = "List of available course:\n\n ";
+
+      Vector<String> out = new Vector<String>();
+      //list of course indexes to be selected by the user.
+      Object[] options = new Object[course_list.size()];
+      int index = 0;
+
+      //fill the options with all the courses.
+      for (Course c : course_list){
+            //output += c.toString()+"\n";
+            options[index++] = c.getCourseID();
+            out.add("<html>ID: " + c.getCourseID() + "<br>Title: " + c.getTitle() + "<br>" + c.getDateStart() + "--" + c.getDateEnd()
+                + "<br>" + c.getTimeStart() + " - " + c.getTimeEnd() + "<br><br></html>");
+      }
+      JList list = new JList (out);
+      JScrollPane scroll  = new JScrollPane(list);
+      scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+      scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+      
+
+      //get user input.
       do{
-         int index = 0;
-         while( it.hasNext()){
-         Course one_course = (Course)it.next();
-            list+= one_course.toString() + "\n\n";
-            options[index++] = one_course.getCourseID();
-         }
-         JOptionPane.showMessageDialog(null, list);
-         int course_index = JOptionPane.showOptionDialog(null,"Please choose the course ID","Course Menu",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,options,options[0]);
+         int course_index = JOptionPane.showOptionDialog(null,scroll,"Course Menu",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,options,options[0]);
          if (course_index >= 0){
             if(courses.contains(course_list.get(course_index))){
                JOptionPane.showMessageDialog(null, "Student already signed up for that course");
-               isset = false;
+               if (JOptionPane.showConfirmDialog(null,"Try again?") != JOptionPane.YES_OPTION){isset = true;}
             }else{
                courses.add(course_list.get(course_index));
                isset = true;
             }
          }
          else {JOptionPane.showMessageDialog(null,"Please choose a course");}
-      }while (!isset);      
+      } while (!isset);
+           
    }
 
    public String dropCourse(String course){
@@ -129,4 +160,3 @@ public class Student extends Person{
    }
    
 }
-

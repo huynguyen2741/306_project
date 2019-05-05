@@ -11,6 +11,9 @@
 
 import java.util.*;
 import javax.swing.*;
+
+import java.awt.BorderLayout;
+//import java.awt.Dimension;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,6 +42,7 @@ public class CodingSchoolImplementation{
       //The username to identify the user. Used as key to find the associating Person in the Hashmap.
       String username ="";
 
+      
       //String login = "";
       boolean tryAgain = true;
       do{
@@ -61,21 +65,70 @@ public class CodingSchoolImplementation{
             }
 
       }while(username.charAt(0)!='Q');
+      
       writeToFile(people);
       writeToFile(course_list);
+   }
+
+   
+
+   public static String get_scroll (Object o){
+      if (o == null){
+         return null;
+      }
+
+      String output = "";
+      if (o instanceof Course){
+         Course c = (Course)o;
+         output += "<html>ID: " + c.getCourseID() + "<br>Title: " + c.getTitle() + "<br>" + c.getDateStart() + "--" + c.getDateEnd()
+                + "<br>" + c.getTimeStart() + " - " + c.getTimeEnd() + "<br><br></html>"; 
+         return output;
+
+      }
+
+      if (o instanceof Person) {
+         Person object = (Person)o;
+         output += "<html>First Name: " + object.getFirstName() + "<br>Last Name: " + object.getLastName() + "<br>Phone: " + object.getPhoneNumber() 
+                   + "<br>Address: " + object.getAddress() + "<br>Email: " + object.getEmail() + "<br>";
+
+         if (o instanceof UnderGraduate){
+            UnderGraduate u = (UnderGraduate)o;
+            output += "Grade: " + u.getGrade() + "<br>Degree: " + u.getDegree() + "<br><br></html>"; 
+            return output;
+         }
+         else if (o instanceof Graduate) {
+            Graduate g = (Graduate)o;
+            output += "Grade: " + g.getGrade() + "<br>Program: " + g.getProgram() + "<br><br></html>"; 
+            return output;
+         }
+
+         else if (o instanceof Instructor){
+            Instructor i = (Instructor)o;
+            output += "Office Hour: " + i.getOfficeHour() + "<br><br></html>"; 
+            return output;
+            
+         }
+         else if (o instanceof Administrator){
+            Administrator a = (Administrator)o;
+            output += "Office Number: " + a.getOfficeNumber() + "<br><br></html>"; 
+            return output;
+            
+         }          
+      }     
       
+      return null;      
    }
    
    //get a list showing name and username based on the type: "S" for Student, "E" for Employee
-   public static String get_list(HashMap<String, Person> people, char type){
+   public static void get_list(HashMap<String, Person> people, char type){
       if (people.size() <= 0){
-         return "No entry exists";
+         return;
       }
 
       //list of person.
-      //Vector<Person> list = new Vector<Person>;
-
-      String list = "";
+      Vector<String> list = new Vector<String>();
+      
+      //String list = "";
       Iterator it = people.values().iterator();
       while (it.hasNext()){         
          //get one entry from the list
@@ -87,22 +140,31 @@ public class CodingSchoolImplementation{
             
             if(one_entry instanceof Student){
                Student stu = (Student)one_entry;
-               list += stu.toString() + "\n\n";
+               list.add(get_scroll(stu));
             }
             if(one_entry instanceof Employee){
                Employee emp = (Employee)one_entry;
                if(emp instanceof Instructor){
                   Instructor inst = (Instructor)emp;
-                  list += inst.toString() + "\n\n";
+                  list.add(get_scroll(inst));
                }else{
-                  list += emp.toString() + "\n\n";
+                  list.add(get_scroll(emp));
                }
             }
             
             //list += "Name: "+ one_entry.getFirstName() + " ," + one_entry.getLastName() + "\nID: " + username +"\n\n";
          }
       }
-      return list;
+      list.trimToSize();
+      JList new_list = new JList(list);      
+      JScrollPane scroll = new JScrollPane(new_list);
+      JPanel mainPanel = new JPanel(new BorderLayout());
+      mainPanel.add(scroll);
+      //scroll.setBounds(0,0,500,200);
+      scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+      scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+      JOptionPane.showMessageDialog(null, scroll);
+      //return list;
    }
 
 
@@ -440,8 +502,6 @@ public class CodingSchoolImplementation{
          }
       }
       
-      
-      
    }
    
    
@@ -469,15 +529,23 @@ public class CodingSchoolImplementation{
             case 2:
                //DISPLAY STUDENTS COURSES
                //stuDisplayCourses(student);               
-               JOptionPane.showMessageDialog(null,student.getCourses());
+               //JOptionPane.showMessageDialog(null,student.getCourses());
+               JList new_list = new JList(student.getCourseList());      
+               JScrollPane scroll = new JScrollPane(new_list);
+               scroll.setBounds(0,0,200,40);
+               scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+               scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+               JOptionPane.showMessageDialog(null, scroll);
                break;
             case 3:
                //DISPLAY EMPLOYEES IN SYSTEM
-               JOptionPane.showMessageDialog(null,get_list(people,'E'));
+               //JOptionPane.showMessageDialog(null,get_list(people,'E'));
+            	get_list(people,'E');
                break;
             case 4:
                //DELETE COURSE FROM STUDENT
                //stuDeleteCourse(student);
+               //student.dropCourse(JOptionPane.showInputDialog("Enter course ID to drop"));
                String stuDrop = student.dropCourse(JOptionPane.showInputDialog("Enter course ID to drop")); 
                JOptionPane.showMessageDialog(null, stuDrop);
                people.put(username,student);
@@ -527,11 +595,11 @@ public class CodingSchoolImplementation{
                      nameSet = false;
                   }
                }while(!nameSet);
-               
                break;
             case 1:
                //CHANGE PHONE NUMBER
                //stuChangePhoneNumber();
+               //student.setPhoneNumber(JOptionPane.showInputDialog("Enter new phone number for the student"));
                boolean phoneSet = false;
                do{
                   try{
@@ -546,6 +614,7 @@ public class CodingSchoolImplementation{
             case 2:
                //CHANGE EMAIL
                //stuChangeEmail();
+               //student.setEmail(JOptionPane.showInputDialog("Enter new email for the student"));
                boolean emailSet = false;
                do{
                   try{
@@ -556,11 +625,11 @@ public class CodingSchoolImplementation{
                      emailSet = false;
                   }
                }while(!emailSet);
-               
                break;
             case 3:
                //CHANGE ADDRESS
                //stuChangeAddress();
+               //student.setAddress(JOptionPane.showInputDialog("Enter new address for the student"));
                boolean addSet = false;
                do{
                   try{
@@ -571,7 +640,6 @@ public class CodingSchoolImplementation{
                      addSet = false;
                   }
                }while(!addSet);
-               
                break;
             case 4:
                return student;
@@ -623,7 +691,7 @@ public class CodingSchoolImplementation{
    public static void instModifyStuGrade(HashMap<String,Person> people){
       boolean gradeSet = false;
       String stuName = "";
-      
+
       Collection<Person> p = new TreeSet<Person>(new SortPersonName());
       Iterator it1 = people.values().iterator();
       while (it1.hasNext()){         
@@ -636,7 +704,7 @@ public class CodingSchoolImplementation{
             p.add(stu);
          }  
       }
-      
+
       Iterator it2 = p.iterator();
       /** Creates a string output to have a well formatted output for the user */
       String output = "Students ordered by firstname: \n\n\n";
@@ -648,10 +716,9 @@ public class CodingSchoolImplementation{
          String ID = temp.getUserName();
          output += "Name: " + first + " , " + last + "\nUsername: " + ID + "\n\n"; 
       }
-      
 
-            
       do{
+         //stuName = JOptionPane.showInputDialog("Enter the username of the student you would like to modify: ");
          stuName = JOptionPane.showInputDialog(output + "\n\nEnter the username of the student you would like to modify: ");
          //VALIDATE STUDENT NAME
          if(people.containsKey(stuName)){
@@ -681,8 +748,8 @@ public class CodingSchoolImplementation{
             for(int i = 0; i < arr.length; i++){
                if(arr[i].getCourseID().equals(whichCourse)){
                   modCourse(i, course_list);
-                  modCourse = true;
                }else{
+                  //JOptionPane.showMessageDialog(null, "No courses with that ID");
                   modCourse = false;
                }
             }
@@ -730,7 +797,6 @@ public class CodingSchoolImplementation{
                      courseSet = false;
                   }
                }while(!courseSet);
-               
                break;
             case 1:
                //MODIFY START DATE
@@ -747,7 +813,6 @@ public class CodingSchoolImplementation{
                      courseSet = false;
                   }
                }while(!courseSet);
-               
                break;
             case 2:
                //MODIFY END DATE
@@ -764,7 +829,6 @@ public class CodingSchoolImplementation{
                      courseSet = false;
                   }
                }while(!courseSet);
-               
                break;
             case 3:
                //MODIFY START TIME
@@ -781,7 +845,6 @@ public class CodingSchoolImplementation{
                      courseSet = false;
                   }
                }while(!courseSet);
-               
                break;
             case 4:
                //MODIFY END TIME
@@ -798,7 +861,6 @@ public class CodingSchoolImplementation{
                      courseSet = false;
                   }
                }while(!courseSet);
-               
                break;
             case 5:
                return;
@@ -808,7 +870,6 @@ public class CodingSchoolImplementation{
    
    
    public static void instDropStu(HashMap<String,Person> people){
-      
       Collection<Person> p = new TreeSet<Person>(new SortPersonName());
       Iterator it1 = people.values().iterator();
       while (it1.hasNext()){      
@@ -821,7 +882,7 @@ public class CodingSchoolImplementation{
             p.add(stu);
          }  
       }
-      
+
       Iterator it2 = p.iterator();
       /** Creates a string output to have a well formatted output for the user */
       String output = "Students ordered by firstname: \n\n\n";
@@ -833,7 +894,7 @@ public class CodingSchoolImplementation{
          String ID = temp.getUserName();
          output += "Name: " + first + " , " + last + "\nUsername: " + ID + "\n\n"; 
       }
-      
+
       String stuID = JOptionPane.showInputDialog(output + "\nEnter username of student you want to drop: ");
       String courseID = "";
       if(!people.isEmpty()){
@@ -844,14 +905,21 @@ public class CodingSchoolImplementation{
                JOptionPane.showMessageDialog(null, student.getCourses());
             }else{
                courseList = student.getCourses();
-               courseID = JOptionPane.showInputDialog(courseList + "\n\nEnter course ID for course you want to drop: ");
+
+               JList new_list = new JList(student.getCourseList());      
+               JScrollPane scroll = new JScrollPane(new_list);
+               scroll.setBounds(0,0,200,40);
+               scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+               scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+               courseID = JOptionPane.showInputDialog(scroll + "\n\nEnter course ID for course you want to drop: ");
                if(student.getCourse(courseID)){
                   student.dropCourse(courseID);
                   JOptionPane.showMessageDialog(null, "Course successfully dropped");
                }else{
                   JOptionPane.showMessageDialog(null, "Student is not registered for that course");
                }
-            }     
+            }   
          }else{
             JOptionPane.showMessageDialog(null, "No student matching that username");
          }
@@ -876,7 +944,8 @@ public class CodingSchoolImplementation{
             case 0:
                //VIEW STUDENTS
                //maintViewStus();
-               JOptionPane.showMessageDialog(null,get_list(people,'S'));
+               //JOptionPane.showMessageDialog(null,get_list(people,'S'));
+            	get_list(people,'S');
                break;
             case 1:
                //ADD STUDENTS = call createAccount() 
@@ -886,6 +955,7 @@ public class CodingSchoolImplementation{
             case 2:
                //MODIFY STUDENTS
                //maintModStu();
+               //String student_username = JOptionPane.showInputDialog("Enter student ID: ");
                Collection<Person> p = new TreeSet<Person>(new SortPersonName());
                Iterator it1 = people.values().iterator();
                while (it1.hasNext()){         
@@ -896,7 +966,7 @@ public class CodingSchoolImplementation{
                      p.add(stu);
                   }  
                }
-                     
+
                Iterator it2 = p.iterator();
                /** Creates a string output to have a well formatted output for the user */
                String out = "Students ordered by firstname: \n\n\n";
@@ -919,7 +989,8 @@ public class CodingSchoolImplementation{
             case 3:
                //VIEW EMPLOYEES
                //maintViewEmps();
-               JOptionPane.showMessageDialog(null,get_list(people,'E'));
+               //JOptionPane.showMessageDialog(null,get_list(people,'E'));
+            	get_list(people,'E');
                break;
             case 4:
                //ADD EMPLOYEES = call createAccount()
@@ -939,7 +1010,7 @@ public class CodingSchoolImplementation{
                      p1.add(empPlace);
                   }  
                }
-                     
+
                Iterator it4 = p1.iterator();
                /** Creates a string output to have a well formatted output for the user */
                String out2 = "Employees ordered by firstname: \n\n\n";
@@ -962,16 +1033,27 @@ public class CodingSchoolImplementation{
             case 6:
                //VIEW COURSES
                //maintViewCourses();
-               String output = "List of course\n\n";
-               if (course_list.size() > 0){                  
-                  for (Course oneCourse : course_list){
-                     output += oneCourse.toString() + "\n";
+               Vector<String> output = new Vector<String>();
+               
+               if (course_list.size() > 0){
+                  for (Course c : course_list){
+                     //output += oneCourse.toString()+"\n";
+                     output.add("<html>ID: " + c.getCourseID() + "<br>Title: " + c.getTitle() + "<br>" + c.getDateStart() + "--" + c.getDateEnd()
+                         + "<br>" + c.getTimeStart() + " - " + c.getTimeEnd() + "<br><br></html>");
                   }
                }
                else { 
-                  output += "Student does not have courses.";
+                  output.add(" No courses.");
                }
-               JOptionPane.showMessageDialog(null,output) ;
+
+               JList new_list = new JList(output);      
+               JScrollPane scroll = new JScrollPane(new_list);
+               scroll.setBounds(0,0,200,40);
+               scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+               scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+               JOptionPane.showMessageDialog(null, scroll);
+
+               //JOptionPane.showMessageDialog(null,scroll) ;
                //JOptionPane.showMessageDialog(null, course_list.toString());
                break;
             case 7:
@@ -1020,6 +1102,8 @@ public class CodingSchoolImplementation{
             case 0:
                //CHANGE Name
                //stuChangeName();
+               //employee.setFirstName(JOptionPane.showInputDialog("Enter new first name for the employee"));
+               //employee.setLastName(JOptionPane.showInputDialog("Enter new last name for the employee"));
                boolean nameSet = false;
                do{
                   try{
@@ -1044,6 +1128,7 @@ public class CodingSchoolImplementation{
             case 1:
                //CHANGE PHONE NUMBER
                //stuChangePhoneNumber();
+               //employee.setPhoneNumber(JOptionPane.showInputDialog("Enter new phone number for the employee"));
                boolean phoneSet = false;
                do{
                   try{
@@ -1054,11 +1139,12 @@ public class CodingSchoolImplementation{
                      phoneSet = false;
                   }
                }while(!phoneSet);
-               
+
                break;
             case 2:
                //CHANGE EMAIL
                //stuChangeEmail();
+               //employee.setEmail(JOptionPane.showInputDialog("Enter new email for the employee"));
                boolean emailSet = false;
                do{
                   try{
@@ -1069,11 +1155,12 @@ public class CodingSchoolImplementation{
                      emailSet = false;
                   }
                }while(!emailSet);
-               
+
                break;
             case 3:
                //CHANGE ADDRESS
                //stuChangeAddress();
+               //employee.setAddress(JOptionPane.showInputDialog("Enter new address for the employee"));
                boolean addSet = false;
                do{
                   try{
@@ -1084,7 +1171,6 @@ public class CodingSchoolImplementation{
                      addSet = false;
                   }
                }while(!addSet);
-               
                break;
             case 4:
                return employee;
